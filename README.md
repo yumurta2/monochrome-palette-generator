@@ -100,6 +100,23 @@ monochrome-palette-generator/
 
 ## Sürümler
 
+### v1.5.1
+
+**Kazanım:** Açılış değerleri yeniden ayarlandı.
+
+| Slider | Önceki default | Yeni default |
+|---|---|---|
+| Hue | 180° | 180° |
+| Saturation | 100% | **30%** |
+| Light Steps | 21 | **8** |
+| Light Range | 100% | **80%** |
+| Light Shift | 0% | **15%** |
+
+**Neden:** 1.5.0'daki default (sat=100, steps=21, range=100, shift=0) tüm özellikleri sergileyen bir "demo" konfigürasyonu sayılırdı ama gerçek kullanım için abartılıydı — 21 parlak cyan, neredeyse hepsi ayırt edilemez. Yeni default:
+- **Sat 30%** → abartısız, UI'da kullanılabilir doygunluk.
+- **Steps 8** → bir tasarım sistemi için makul bir ton skalası (typical design tokens: 50, 100, 200, ..., 900).
+- **Range 80 + Shift 15** → pencere 15–95, saf siyah ve saf beyaz dışlanmış; uçlar temiz kalıyor, içerik okunabilir renklerle dolu.
+
 ### v1.5.0
 
 **Kazanım:** Light range + light shift kontrolleri — paletin alt kümesini istediğin gibi kesip kaydırabilirsin.
