@@ -7,7 +7,7 @@ Tek bir renk tonundan (hue) yola çıkarak **ayarlanabilir sayıda açıklık (l
 - **Canlı önizleme:** Üç slider'dan birini oynattıkça kartlar anında yeniden render edilir.
 - **Ayarlanabilir kademe sayısı:** 2 ile 51 arasında herhangi bir değer — dar bir palette (örn. 5 kademe) ton karar vermek kolay; geniş bir palette (örn. 51 kademe) pixel art shading için ince geçişler çıkarmak mümkün.
 - **Monokrom palet:** Tek hue + tek saturation sabitlenir, yalnızca lightness değişir — bir tasarım sistemine uygun ton ölçeği çıkarmak için idealdir.
-- **HSL → HEX dönüşümü:** Renkler HSL ile üretilir, kartlarda HEX olarak gösterilir.
+- **HSL ↔ OKLCH toggle:** Üst paneldeki toggle ile renk uzayı değişir; OKLCH perceptual uniform olduğu için aynı lightness değerindeki farklı hue'lar gözle tutarlı parlaklıkta algılanır.
 - **Tek tıkla kopyalama:** Karta tıkla → HEX kodu clipboard'a düşer, kart kısa süreli `Copied!` geri bildirimi verir.
 - **PNG export:** Paleti tek piksel yüksekliğinde, `N` piksel genişliğinde PNG olarak indirir (her pikselde bir lightness kademesi).
 - **Akıllı kontrast:** Lightness `%55`'in üstündeyse yazı siyah, altındaysa beyaz gösterilir — her kartta metin her zaman okunur.
@@ -24,6 +24,7 @@ Aracın ürettiği monokrom paletin pratik kullanımı — aşağıdaki 9-slice 
 ## Teknoloji
 
 - [Vite](https://vitejs.dev/) 8 — dev server ve bundler
+- [culori](https://culorijs.org/) — OKLCH renk uzayı dönüşümleri ve gamut clamping
 - Vanilla JavaScript (ES modules)
 - HTML + CSS + native `<canvas>` API (PNG export için)
 
@@ -58,8 +59,9 @@ monochrome-palette-generator/
 │   ├── inputs.js                   # input/ barrel
 │   ├── logic/
 │   │   ├── hslToHex.js             # HSL → HEX dönüşümü
+│   │   ├── oklchToHex.js           # OKLCH → HEX dönüşümü (culori ile)
 │   │   ├── getContrastColor.js     # Lightness'a göre siyah/beyaz metin rengi
-│   │   ├── generatePalette.js      # (h, s) → 21 adımlık HEX dizisi
+│   │   ├── generatePalette.js      # (h, s, count, mode) → {l, hex} çiftleri
 │   │   └── paletteToPng.js         # HEX dizisi → PNG Blob (canvas ile)
 │   ├── render/
 │   │   ├── renderPalette.js        # 21 kartı üretip DOM'a basar
@@ -70,7 +72,8 @@ monochrome-palette-generator/
 │       ├── readInputs.js           # Slider değerlerini parse eder
 │       ├── updateInputDisplay.js   # Label'ları ve saturation gradyanını günceller
 │       ├── bindInputs.js           # Slider event listener'larını bağlar
-│       └── bindExport.js           # Export butonu listener'ını bağlar
+│       ├── bindExport.js           # Export butonu listener'ını bağlar
+│       └── bindModeToggle.js       # Color space toggle butonu (HSL ↔ OKLCH)
 └── README.md
 ```
 
@@ -95,6 +98,27 @@ monochrome-palette-generator/
 - UI tam sayfa (viewport) yerleşimi kullanır, scroll yoktur — kartlar tek satırda grid olarak dizilir.
 
 ## Sürümler
+
+### v1.4.0
+
+**Kazanım:** HSL ↔ OKLCH renk uzayı toggle'ı.
+
+**Neden çıkıldı:**
+- HSL intuitif ama perceptual olarak tutarsız — aynı lightness değerindeki iki hue (örn. sarı ve mor) gözle farklı parlaklıkta görünür. Bu özellikle monokrom bir palette fark yaratıyor: HSL'de `L: 50%` sarı, 50% mor'dan algı olarak çok daha parlak.
+- OKLCH perceptual uniform bir uzay; aynı `L` değerindeki farklı hue'lar gözle yaklaşık aynı parlaklıkta. Tasarım sistemi, UI theming, data viz gibi senaryolarda "tutarlı ton ölçeği" aramak buradan çok daha temiz çıkar.
+- İki uzay arasında canlı karşılaştırma yapabilmek için toggle ekledik; aynı hue/saturation/count değerleriyle iki paleti de üst üste görmek hangi uzayın işe yaradığını hızlıca anlamanın yolu.
+
+**Ne geldi:**
+- Üst paneldeki **Color Space** toggle butonu (`HSL` ↔ `OKLCH`).
+- Yeni `oklchToHex()` fonksiyonu — `culori` ile OKLCH → sRGB dönüşümü ve gamut clamping (gamut dışı renkler kırpılır).
+- `generatePalette(h, s, count, mode)` modu alıp ilgili `toHex` fonksiyonunu seçer.
+- Hue ve saturation slider gradyanları da moda göre dinamik — OKLCH seçiliyken slider'lar OKLCH renkleriyle boyanır. Böylece slider'ın üstündeki hissiyat da üretilen paletle tutarlı.
+- Export dosya adı artık modu içeriyor: `palette-hsl-h180-s100-n21.png` vs `palette-oklch-h180-s100-n21.png` — iki uzayı aynı klasörde karıştırmadan saklayabilirsin.
+
+**Teknik notlar:**
+- `culori` dependency'si eklendi (~43 kB, gzip ~16 kB) — jimp'ten çok daha hafif.
+- Saturation slider'ı her iki uzayda da `0-100` aralığında; OKLCH'te bu değer `(s/100) * 0.37` formülüyle chroma'ya maplenir. 0.37 üst sınırı sRGB gamut'undaki makul bir chroma tavanı.
+- Mod seçimi DOM'da butonun `data-mode` attribute'unda tutuluyor; ayrı bir state store yok.
 
 ### v1.3.0
 

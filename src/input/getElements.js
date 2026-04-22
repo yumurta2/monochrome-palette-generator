@@ -8,5 +8,6 @@ export function getElements() {
     countValue: document.getElementById('count-value'),
     colorsContainer: document.getElementById('colors'),
     exportBtn: document.getElementById('export'),
+    modeBtn: document.getElementById('mode'),
   }
 }

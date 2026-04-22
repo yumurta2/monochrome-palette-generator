@@ -1,4 +1,5 @@
 export { hslToHex } from './logic/hslToHex.js'
+export { oklchToHex } from './logic/oklchToHex.js'
 export { getContrastColor } from './logic/getContrastColor.js'
 export { generatePalette } from './logic/generatePalette.js'
 export { paletteToPng } from './logic/paletteToPng.js'
