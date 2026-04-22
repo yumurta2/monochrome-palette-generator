@@ -1,14 +1,15 @@
 # Monochrome Palette Generator
 
-Tek bir renk tonundan (hue) yola çıkarak **21 farklı açıklık (lightness) kademesi** üreten, tarayıcıda çalışan hafif bir paleti oluşturma aracı. Seçtiğin hue ve saturation değerlerine göre `%0`'dan `%100`'e kadar `%5` aralıklarla monokrom bir gradyan palet çıkarır; herhangi bir kartın üstüne tıklayarak HEX kodunu panoya kopyalayabilirsin.
+Tek bir renk tonundan (hue) yola çıkarak **ayarlanabilir sayıda açıklık (lightness) kademesi** üreten, tarayıcıda çalışan hafif bir palet oluşturma aracı. Seçtiğin hue, saturation ve kart sayısına göre `%0`'dan `%100`'e kadar eşit aralıklarla monokrom bir gradyan palet çıkarır; herhangi bir kartın üstüne tıklayarak HEX kodunu panoya kopyalayabilirsin.
 
 ## Özellikler
 
-- **Canlı önizleme:** Hue ve saturation kaydırıcılarını oynattıkça 21 kart anında yeniden render edilir.
+- **Canlı önizleme:** Üç slider'dan birini oynattıkça kartlar anında yeniden render edilir.
+- **Ayarlanabilir kademe sayısı:** 2 ile 51 arasında herhangi bir değer — dar bir palette (örn. 5 kademe) ton karar vermek kolay; geniş bir palette (örn. 51 kademe) pixel art shading için ince geçişler çıkarmak mümkün.
 - **Monokrom palet:** Tek hue + tek saturation sabitlenir, yalnızca lightness değişir — bir tasarım sistemine uygun ton ölçeği çıkarmak için idealdir.
 - **HSL → HEX dönüşümü:** Renkler HSL ile üretilir, kartlarda HEX olarak gösterilir.
 - **Tek tıkla kopyalama:** Karta tıkla → HEX kodu clipboard'a düşer, kart kısa süreli `Copied!` geri bildirimi verir.
-- **PNG export:** Paleti tek piksel yüksekliğinde, 21 piksel genişliğinde PNG olarak indirir (her pikselde bir lightness kademesi).
+- **PNG export:** Paleti tek piksel yüksekliğinde, `N` piksel genişliğinde PNG olarak indirir (her pikselde bir lightness kademesi).
 - **Akıllı kontrast:** Lightness `%55`'in üstündeyse yazı siyah, altındaysa beyaz gösterilir — her kartta metin her zaman okunur.
 - **Dinamik saturation kaydırıcısı:** Saturation slider'ının arka plan gradyanı seçili hue'ya göre güncellenir, ne seçtiğini görsel olarak hissedersin.
 
@@ -78,20 +79,40 @@ monochrome-palette-generator/
 ## Nasıl Çalışır
 
 1. `getElements()` tüm DOM referanslarını tek bir nesnede toplar — [src/input/getElements.js:1](src/input/getElements.js#L1).
-2. `bindInputs()` iki slider'a `input` event listener'ı bağlar; her değişiklikte `update()` callback'i tetiklenir — [src/input/bindInputs.js:1](src/input/bindInputs.js#L1).
-3. `readInputs()` slider değerlerini integer olarak okur → `{ h, s }` — [src/input/readInputs.js:1](src/input/readInputs.js#L1).
-4. `updateInputDisplay()` hue/sat label'larını günceller ve saturation slider'ının arka plan gradyanını seçili hue'ya göre yeniler — [src/input/updateInputDisplay.js:1](src/input/updateInputDisplay.js#L1).
-5. `renderPalette()` container'ı temizler, `LIGHTNESS_STEPS` boyunca `createColorCard()` çağırır — [src/render/renderPalette.js:4](src/render/renderPalette.js#L4).
-6. `createColorCard()` tek bir kart üretir; `hslToHex()` ile rengi, `getContrastColor()` ile metin rengini hesaplar, kopyalama davranışını bağlar — [src/render/createColorCard.js:3](src/render/createColorCard.js#L3).
-7. **Export** butonuna basılınca `generatePalette(h, s)` 21 HEX döner → `paletteToPng()` native `<canvas>` ile 21×1 PNG Blob üretir → `downloadBlob()` `palette-h{h}-s{s}.png` olarak indirtir — [src/main.js:15](src/main.js#L15).
+2. `bindInputs()` üç slider'a (`hue`, `saturation`, `count`) `input` event listener'ı bağlar; her değişiklikte `update()` callback'i tetiklenir — [src/input/bindInputs.js:1](src/input/bindInputs.js#L1).
+3. `readInputs()` slider değerlerini integer olarak okur → `{ h, s, count }` — [src/input/readInputs.js:1](src/input/readInputs.js#L1).
+4. `updateInputDisplay()` hue/sat/count label'larını günceller ve saturation slider'ının arka plan gradyanını seçili hue'ya göre yeniler — [src/input/updateInputDisplay.js:1](src/input/updateInputDisplay.js#L1).
+5. `generatePalette(h, s, count)` `count` adet eşit aralıklı lightness değeri hesaplar ve her biri için `{ l, hex }` çifti döner — [src/logic/generatePalette.js:3](src/logic/generatePalette.js#L3).
+6. `renderPalette()` `grid-template-columns`'u `repeat(count, 1fr)` olarak dinamik ayarlar, container'ı temizler ve palette'i dolaşarak `createColorCard()` çağırır — [src/render/renderPalette.js:3](src/render/renderPalette.js#L3).
+7. `createColorCard(l, hex)` tek bir kart üretir; `getContrastColor()` ile metin rengini seçer, kopyalama davranışını bağlar — [src/render/createColorCard.js:3](src/render/createColorCard.js#L3).
+8. **Export** butonuna basılınca `generatePalette()` hex dizisini üretir → `paletteToPng()` native `<canvas>` ile `N×1` PNG Blob döner → `downloadBlob()` `palette-h{h}-s{s}-n{count}.png` olarak indirtir — [src/main.js:16](src/main.js#L16).
 
 ## Kullanım İpuçları
 
 - **Hue** kaydırıcısı `15°` aralıklarla hareket eder — renk tekerleğini 24 eşit parçaya böler.
 - **Saturation** kaydırıcısı `5%` adımlarla değişir; `0`'a çekersen gri tonlamalı bir nötr ölçek elde edersin.
-- UI tam sayfa (viewport) yerleşimi kullanır, scroll yoktur — 21 kart tek satırda grid olarak dizilir.
+- **Generate Count** 2–51 arası seçilebilir; kademe sayısı arttıkça kartlar daralır, grid otomatik yeniden yerleşir.
+- UI tam sayfa (viewport) yerleşimi kullanır, scroll yoktur — kartlar tek satırda grid olarak dizilir.
 
 ## Sürümler
+
+### v1.2.0
+
+**Kazanım:** Ayarlanabilir kademe sayısı + yeniden düzenlenmiş üst panel.
+
+**Neden çıkıldı:**
+- Sabit 21 kademe her senaryoya uymuyor: minimal bir UI tema paleti (5-7 ton) ile pixel art shading için gereken ince geçişler (40-50 ton) aynı aracın içinden çıkmalı.
+- Slider'lar dikey yığılı olduğu için (1.1.0) ekranın üstünde gereksiz yer kaplıyordu; paletin kendisine daha fazla dikey alan lazım.
+
+**Ne geldi:**
+- **Generate Count** slider'ı (2–51, varsayılan 21) — kademe sayısını canlı ayarlar.
+- Üst panel tek satırlı CSS grid'e (`2fr 2fr 1fr 1fr`) geçti; Hue ve Saturation geniş, Count ve Export butonu dar sütunlarda.
+- `palette-h{h}-s{s}-n{count}.png` — export dosya adı artık kademe sayısını da içeriyor.
+
+**Teknik değişiklikler:**
+- `generatePalette(h, s, count)` artık `count`'a göre `0`'dan `100`'e eşit aralıklı lightness dizisi hesaplar ve `{ l, hex }` çiftleri döner. Önceki sabit `LIGHTNESS_STEPS` kaldırıldı.
+- `renderPalette()` `grid-template-columns`'ü `repeat(count, 1fr)` olarak runtime'da ayarlar; CSS'teki sabit `repeat(21, 1fr)` kaldırıldı.
+- `createColorCard()` imzası `(h, s, l)` yerine `(l, hex)` oldu — hex hesaplama `generatePalette()` içinde tek kaynakta, kart sadece DOM ile ilgileniyor.
 
 ### v1.1.1
 

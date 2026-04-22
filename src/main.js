@@ -6,16 +6,18 @@ import { generatePalette, paletteToPng } from './logics.js'
 const elements = getElements()
 
 const update = () => {
-  const { h, s } = readInputs(elements)
-  updateInputDisplay(elements, h, s)
-  renderPalette(elements.colorsContainer, h, s)
+  const { h, s, count } = readInputs(elements)
+  updateInputDisplay(elements, h, s, count)
+  const palette = generatePalette(h, s, count)
+  renderPalette(elements.colorsContainer, palette)
 }
 
 const onExport = async () => {
-  const { h, s } = readInputs(elements)
-  const hexes = generatePalette(h, s)
+  const { h, s, count } = readInputs(elements)
+  const palette = generatePalette(h, s, count)
+  const hexes = palette.map((p) => p.hex)
   const blob = await paletteToPng(hexes)
-  downloadBlob(blob, `palette-h${h}-s${s}.png`)
+  downloadBlob(blob, `palette-h${h}-s${s}-n${count}.png`)
 }
 
 bindInputs(elements, update)

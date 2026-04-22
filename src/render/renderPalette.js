@@ -1,10 +1,10 @@
 import { createColorCard } from './createColorCard.js'
-import { LIGHTNESS_STEPS } from '../logics.js'
 
-export function renderPalette(colorsContainer, h, s) {
+export function renderPalette(colorsContainer, palette) {
+  colorsContainer.style.gridTemplateColumns = `repeat(${palette.length}, 1fr)`
   colorsContainer.innerHTML = ''
 
-  for (const l of LIGHTNESS_STEPS) {
-    colorsContainer.appendChild(createColorCard(h, s, l))
+  for (const { l, hex } of palette) {
+    colorsContainer.appendChild(createColorCard(l, hex))
   }
 }

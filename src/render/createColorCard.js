@@ -1,8 +1,8 @@
-import { hslToHex, getContrastColor } from '../logics.js'
+import { getContrastColor } from '../logics.js'
 
-export function createColorCard(h, s, l) {
-  const hex = hslToHex(h, s, l)
+export function createColorCard(l, hex) {
   const textColor = getContrastColor(l)
+  const lLabel = Math.round(l)
 
   const card = document.createElement('div')
   card.className = 'color-card'
@@ -11,7 +11,7 @@ export function createColorCard(h, s, l) {
 
   const setContent = (hexText) => {
     card.innerHTML = `
-      <span class="lightness">L: ${l}%</span>
+      <span class="lightness">L: ${lLabel}%</span>
       <span class="hex">${hexText}</span>
     `
   }
