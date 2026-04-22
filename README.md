@@ -96,6 +96,18 @@ monochrome-palette-generator/
 
 ## Sürümler
 
+### v1.2.1
+
+**Kazanım:** GitHub Pages üzerinde çalışır hale geldi.
+
+**Sorun:** Vite varsayılan olarak `base: '/'` ile build eder; `index.html` içindeki asset referansları `/assets/...` şeklinde mutlak olur. Proje `yumurta2.github.io/monochrome-palette-generator/` alt yolundan servis edildiğinde bu path'ler `yumurta2.github.io/assets/...` olarak çözümleniyor → 404. Sonuç: sayfa yükleniyor ama CSS ve JS düşmüyor, sadece çıplak HTML görünüyor.
+
+**Ne geldi:**
+- `vite.config.js` tekrar eklendi; tek satırlık `base: '/monochrome-palette-generator/'` ayarı. Build sonrası asset URL'leri `/monochrome-palette-generator/assets/...` olarak üretiliyor.
+- `.github/workflows/deploy.yml` — her `main` push'unda `npm run build` çalıştırıp `dist/` klasörünü GitHub Pages'a otomatik deploy eden workflow.
+
+**Kurulum notu:** İlk deploy için GitHub repo ayarlarında `Settings → Pages → Source → GitHub Actions` seçilmeli. Sonrasında push akışı kendi kendine yeter.
+
 ### v1.2.0
 
 **Kazanım:** Ayarlanabilir kademe sayısı + yeniden düzenlenmiş üst panel.
