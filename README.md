@@ -96,6 +96,21 @@ monochrome-palette-generator/
 
 ## Sürümler
 
+### v1.3.0
+
+**Kazanım:** Kart görünümü sadeleşti; HEX yazısı kartın genişliğine göre otomatik ölçekleniyor.
+
+**Neden çıkıldı:**
+- 1.2.0'da gelen count slider'ı ile kart genişliği 2×'den 51×'e kadar dalgalanıyor. Sabit `0.9rem` font boyutu iki uçta da kötü sonuç veriyordu: dar kartlarda taşma, geniş kartlarda boşluk.
+- `L: X%` label'ı bilgi olarak zayıftı — lightness zaten indeks + count'tan türetilebilir, kartta görünmesi görsel gürültü yaratıyordu. Asıl kıymetli bilgi HEX kodu.
+
+**Ne geldi:**
+- Kartlar sadece HEX gösterir (`L: X%` etiketi kaldırıldı).
+- HEX tipografisi **CSS Container Queries** ile kartın fiziksel genişliğine orantılı: `container-type: inline-size` + `font-size: 22cqi`. Grid'de kaç sütun olduğundan bağımsız, kart ne kadar genişse yazı da orantılı büyür.
+- `JetBrains Mono` (weight 300) Google Fonts'tan yüklendi — HEX gibi büyük boyutlarda gösterilen monospace metin için ince ve temiz duruyor.
+
+**Dokunulmayanlar:** Logic katmanı, input slider davranışı, PNG export akışı hepsi aynı — yalnızca kart DOM'u ve CSS'i değişti.
+
 ### v1.2.1
 
 **Kazanım:** GitHub Pages üzerinde çalışır hale geldi.

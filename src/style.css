@@ -136,15 +136,14 @@ input[type="range"]::-moz-range-thumb {
 .color-card {
   border-radius: 12px;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.3rem;
-  font-weight: 600;
   transition: background-color 0.15s ease;
   border: 1px solid rgba(255, 255, 255, 0.1);
   cursor: pointer;
   user-select: none;
+  container-type: inline-size;
+  overflow: hidden;
 }
 
 .color-card:hover {
@@ -152,12 +151,11 @@ input[type="range"]::-moz-range-thumb {
   transition: transform 0.15s ease, background-color 0.15s ease;
 }
 
-.color-card .lightness {
-  font-size: 0.75rem;
-  opacity: 0.8;
-}
-
 .color-card .hex {
-  font-family: ui-monospace, Consolas, monospace;
-  font-size: 0.9rem;
+  font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+  font-weight: 300;
+  font-size: 22cqi;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
 }
