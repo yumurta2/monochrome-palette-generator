@@ -23,10 +23,8 @@ Aracın ürettiği monokrom paletin pratik kullanımı — aşağıdaki 9-slice 
 ## Teknoloji
 
 - [Vite](https://vitejs.dev/) 8 — dev server ve bundler
-- [Jimp](https://github.com/jimp-dev/jimp) — PNG üretimi (tarayıcıda)
-- [vite-plugin-node-polyfills](https://github.com/davidmyersdev/vite-plugin-node-polyfills) — Jimp'in Node API'lerini tarayıcıya uyarlar
 - Vanilla JavaScript (ES modules)
-- HTML + CSS
+- HTML + CSS + native `<canvas>` API (PNG export için)
 
 ## Kurulum
 
@@ -51,7 +49,6 @@ Dev server ayağa kalktıktan sonra terminalde çıkan `localhost` adresini tara
 monochrome-palette-generator/
 ├── index.html
 ├── package.json
-├── vite.config.js                  # Jimp için polyfill ve alias ayarları
 ├── src/
 │   ├── main.js                     # Giriş noktası; yalnızca barrel'lardan import eder
 │   ├── style.css
@@ -62,7 +59,7 @@ monochrome-palette-generator/
 │   │   ├── hslToHex.js             # HSL → HEX dönüşümü
 │   │   ├── getContrastColor.js     # Lightness'a göre siyah/beyaz metin rengi
 │   │   ├── generatePalette.js      # (h, s) → 21 adımlık HEX dizisi
-│   │   └── paletteToPng.js         # HEX dizisi → PNG Blob (Jimp ile)
+│   │   └── paletteToPng.js         # HEX dizisi → PNG Blob (canvas ile)
 │   ├── render/
 │   │   ├── renderPalette.js        # 21 kartı üretip DOM'a basar
 │   │   ├── createColorCard.js      # Tek bir kart + tıklama davranışı
@@ -86,7 +83,7 @@ monochrome-palette-generator/
 4. `updateInputDisplay()` hue/sat label'larını günceller ve saturation slider'ının arka plan gradyanını seçili hue'ya göre yeniler — [src/input/updateInputDisplay.js:1](src/input/updateInputDisplay.js#L1).
 5. `renderPalette()` container'ı temizler, `LIGHTNESS_STEPS` boyunca `createColorCard()` çağırır — [src/render/renderPalette.js:4](src/render/renderPalette.js#L4).
 6. `createColorCard()` tek bir kart üretir; `hslToHex()` ile rengi, `getContrastColor()` ile metin rengini hesaplar, kopyalama davranışını bağlar — [src/render/createColorCard.js:3](src/render/createColorCard.js#L3).
-7. **Export** butonuna basılınca `generatePalette(h, s)` 21 HEX döner → `paletteToPng()` Jimp ile 21×1 PNG Blob üretir → `downloadBlob()` `palette-h{h}-s{s}.png` olarak indirtir — [src/main.js:15](src/main.js#L15).
+7. **Export** butonuna basılınca `generatePalette(h, s)` 21 HEX döner → `paletteToPng()` native `<canvas>` ile 21×1 PNG Blob üretir → `downloadBlob()` `palette-h{h}-s{s}.png` olarak indirtir — [src/main.js:15](src/main.js#L15).
 
 ## Kullanım İpuçları
 
@@ -95,6 +92,24 @@ monochrome-palette-generator/
 - UI tam sayfa (viewport) yerleşimi kullanır, scroll yoktur — 21 kart tek satırda grid olarak dizilir.
 
 ## Sürümler
+
+### v1.1.1
+
+**Kazanım:** 0 güvenlik uyarısı + çok daha hafif bundle.
+
+**Neden çıkıldı:**
+- 1.1.0 ile gelen `jimp` bağımlılığı, dolaylı olarak `elliptic` üzerinden aktif bir güvenlik uyarısı getiriyordu ([CVE-2025-14505](https://github.com/advisories/GHSA-848j-6mx2-7j84)).
+- Advisory'nin `first_patched_version` alanı boş — yani `elliptic`'in hiçbir sürümü şu anda güvenli değil. Override ile düzelme ihtimali yok.
+- `npm audit fix --force` önerisi `vite-plugin-node-polyfills`'i 0.2.0'a düşürmeye çalışıyor, fakat o sürüm Vite 8 ile uyumsuz (dependency optimization başarısız).
+
+**Ne geldi:**
+- `paletteToPng()` yeniden yazıldı: `jimp` yerine native `<canvas>` API'si kullanılıyor. 21×1 piksellik bir palet için canvas zaten fazlasıyla yeterli.
+- `jimp` ve `vite-plugin-node-polyfills` bağımlılıkları tamamen kaldırıldı; `vite.config.js` de gereksiz kaldığı için silindi.
+
+**Sayısal sonuçlar:**
+- `npm audit`: 6 low severity → **0**
+- Production bundle (gzip öncesi): **617 kB → 2.71 kB** (~227x küçülme)
+- Dep graph: 225 paket → **16 paket**
 
 ### v1.1.0
 
@@ -110,5 +125,6 @@ monochrome-palette-generator/
 - Kod tarafında palet üretimi render'dan ayrıldı: `generatePalette()` tek kaynak haline geldi, hem ekran render'ı hem de export aynı diziyi kullanıyor.
 
 **Teknik seçimler:**
-- Tarayıcıda PNG üretimi için `jimp` tercih edildi; canvas yerine Jimp seçilmesinin sebebi ileride (çok satırlı spritesheet, çerçeve/grid, anti-alias'sız piksel çıktısı) daha kontrollü bir pipeline'a uzatılacak olması.
+- Tarayıcıda PNG üretimi için `jimp` tercih edildi.
 - Jimp'in Node API bağımlılıkları (`Buffer`, `stream`) için `vite-plugin-node-polyfills` ve yeni `vite.config.js` eklendi.
+- *Not:* Bu tercih 1.1.1'de güvenlik uyarısı nedeniyle canvas'a çevrildi.
