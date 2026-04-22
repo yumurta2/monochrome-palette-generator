@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monochrome Palette Generator</title>
+  </head>
+  <body>
+    <div id="app">
+      <h1>Monochrome Palette Generator</h1>
+
+      <div class="controls">
+        <div class="slider-group">
+          <label>
+            Hue: <span id="hue-value">180</span>°
+          </label>
+          <input type="range" id="hue" min="0" max="360" value="180" step="15" />
+        </div>
+
+        <div class="slider-group">
+          <label>
+            Saturation: <span id="sat-value">100</span>%
+          </label>
+          <input type="range" id="saturation" min="0" max="100" value="100" step="5" />
+        </div>
+      </div>
+
+      <div id="colors" class="colors"></div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
