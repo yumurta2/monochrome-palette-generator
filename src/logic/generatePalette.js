@@ -1,8 +1,10 @@
 import { hslToHex } from './hslToHex.js'
 import { oklchToHex } from './oklchToHex.js'
 
-export function generatePalette(h, s, count, mode) {
+export function generatePalette(h, s, steps, range, shift, mode) {
   const toHex = mode === 'oklch' ? oklchToHex : hslToHex
-  const steps = Array.from({ length: count }, (_, i) => (i * 100) / (count - 1))
-  return steps.map((l) => ({ l, hex: toHex(h, s, l) }))
+  const lightness = Array.from({ length: steps }, (_, i) =>
+    steps === 1 ? shift : shift + (i * range) / (steps - 1),
+  )
+  return lightness.map((l) => ({ l, hex: toHex(h, s, l) }))
 }

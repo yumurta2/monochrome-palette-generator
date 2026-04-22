@@ -32,14 +32,28 @@
 
         <div class="slider-group">
           <label>
-            Generate Count: <span id="count-value">21</span>
+            Light Steps: <span id="steps-value">21</span>
           </label>
-          <input type="range" id="count" min="2" max="51" value="21" step="1" />
+          <input type="range" id="steps" min="2" max="51" value="21" step="1" />
+        </div>
+
+        <div class="slider-group">
+          <label>
+            Light Range: <span id="range-value">100</span>%
+          </label>
+          <input type="range" id="range" min="0" max="100" value="100" step="5" />
+        </div>
+
+        <div class="slider-group">
+          <label>
+            Light Shift: <span id="shift-value">0</span>%
+          </label>
+          <input type="range" id="shift" min="0" max="0" value="0" step="5" />
         </div>
 
         <div class="slider-group">
           <label>Color Space</label>
-          <button id="mode" class="btn" data-mode="hsl">HSL</button>
+          <button id="mode" class="btn" data-mode="oklch">OKLCH</button>
         </div>
 
         <div class="slider-group">

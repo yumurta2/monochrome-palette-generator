@@ -6,6 +6,7 @@ Tek bir renk tonundan (hue) yola çıkarak **ayarlanabilir sayıda açıklık (l
 
 - **Canlı önizleme:** Üç slider'dan birini oynattıkça kartlar anında yeniden render edilir.
 - **Ayarlanabilir kademe sayısı:** 2 ile 51 arasında herhangi bir değer — dar bir palette (örn. 5 kademe) ton karar vermek kolay; geniş bir palette (örn. 51 kademe) pixel art shading için ince geçişler çıkarmak mümkün.
+- **Light range + shift:** Palette'in hangi lightness dilimini kullanacağını kısıtla. Range genişliği belirler, shift de başlangıcı — sadece shadow'lar (0–50), sadece midtone'lar (25–75) veya sadece highlight'lar (50–100) için dar paletler üretebilirsin.
 - **Monokrom palet:** Tek hue + tek saturation sabitlenir, yalnızca lightness değişir — bir tasarım sistemine uygun ton ölçeği çıkarmak için idealdir.
 - **HSL ↔ OKLCH toggle:** Üst paneldeki toggle ile renk uzayı değişir; OKLCH perceptual uniform olduğu için aynı lightness değerindeki farklı hue'lar gözle tutarlı parlaklıkta algılanır.
 - **Tek tıkla kopyalama:** Karta tıkla → HEX kodu clipboard'a düşer, kart kısa süreli `Copied!` geri bildirimi verir.
@@ -61,7 +62,7 @@ monochrome-palette-generator/
 │   │   ├── hslToHex.js             # HSL → HEX dönüşümü
 │   │   ├── oklchToHex.js           # OKLCH → HEX dönüşümü (culori ile)
 │   │   ├── getContrastColor.js     # Lightness'a göre siyah/beyaz metin rengi
-│   │   ├── generatePalette.js      # (h, s, count, mode) → {l, hex} çiftleri
+│   │   ├── generatePalette.js      # (h, s, steps, range, shift, mode) → {l, hex} çiftleri
 │   │   └── paletteToPng.js         # HEX dizisi → PNG Blob (canvas ile)
 │   ├── render/
 │   │   ├── renderPalette.js        # 21 kartı üretip DOM'a basar
@@ -98,6 +99,35 @@ monochrome-palette-generator/
 - UI tam sayfa (viewport) yerleşimi kullanır, scroll yoktur — kartlar tek satırda grid olarak dizilir.
 
 ## Sürümler
+
+### v1.5.0
+
+**Kazanım:** Light range + light shift kontrolleri — paletin alt kümesini istediğin gibi kesip kaydırabilirsin.
+
+**Neden çıkıldı:**
+- Her palet 0–100 arası tüm lightness spektrumunu gezmek zorunda değildi. Bazı senaryolarda sadece midtone'lar (30–70 arası), bazılarında sadece shadow'lar (0–50), bazılarında sadece highlight'lar (60–100) lazım.
+- Önceden bu kısıtlamayı yapmak için grid'den kartları elle silmek gerekiyordu. Artık tek slider'la palette'in hangi dilimini üreteceğini söylüyorsun.
+
+**Ne geldi:**
+- **Light Steps** (eski adıyla Generate Count) — sadece isim değişikliği, davranış aynı. "Steps" slider'ın ne yaptığını daha net anlatıyor.
+- **Light Range** (0–100%, default 100) — üretilecek lightness penceresinin genişliği. 100'deyken tam 0–100 arası, 70'teyken 70 birimlik bir pencere.
+- **Light Shift** (0–(100-range)%, default 0) — pencerenin nereden başlayacağı. Range 70 iken shift 0 → pencere 0–70; shift 30 → pencere 30–100.
+- Shift slider'ının `max`'i range değişince dinamik güncellenir; shift eski değeri yeni max'ı aşarsa otomatik kırpılır.
+- Export dosya adı: `palette-{mode}-h{h}-s{s}-n{steps}-r{range}-o{shift}.png` — her parametre isimde olduğu için aynı klasörde karışmaz.
+
+**Matematik:**
+```
+lightness[i] = shift + (i * range) / (steps - 1)
+```
+Range=100 + shift=0 durumunda formül `(i * 100) / (steps - 1)` olur — yani 1.4.x davranışı bu kombinasyonda birebir korunur.
+
+### v1.4.1
+
+**Kazanım:** Açılış modu OKLCH.
+
+**Neden:** Aracın asıl değer önerisi (aynı hue boyunca algısal olarak tutarlı ton ölçeği) OKLCH modunda kendini gösteriyor. HSL'le açılmak kullanıcıya önce "düzensiz" palet gösterip sonra toggle'la düzeltmesini beklemeye denk düşüyor — doğrudan OKLCH ile başlamak daha temiz bir ilk izlenim.
+
+**Değişiklik:** `index.html` içindeki mode button artık `data-mode="oklch"` ile açılıyor, etiket `OKLCH`. HSL'e geçmek için tek tık.
 
 ### v1.4.0
 
