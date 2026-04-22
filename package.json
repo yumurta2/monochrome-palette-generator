@@ -1,6 +1,6 @@
 {
   "name": "monochrome-palette-generator",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,6 +9,10 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "^8.0.4"
+    "vite": "^8.0.4",
+    "vite-plugin-node-polyfills": "^0.26.0"
+  },
+  "dependencies": {
+    "jimp": "^1.6.1"
   }
 }

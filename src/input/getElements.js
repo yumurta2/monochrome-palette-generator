@@ -5,5 +5,6 @@ export function getElements() {
     hueValue: document.getElementById('hue-value'),
     satValue: document.getElementById('sat-value'),
     colorsContainer: document.getElementById('colors'),
+    exportBtn: document.getElementById('export'),
   }
 }

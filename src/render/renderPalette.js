@@ -1,6 +1,5 @@
 import { createColorCard } from './createColorCard.js'
-
-const LIGHTNESS_STEPS = Array.from({ length: 21 }, (_, i) => i * 5)
+import { LIGHTNESS_STEPS } from '../logics.js'
 
 export function renderPalette(colorsContainer, h, s) {
   colorsContainer.innerHTML = ''
