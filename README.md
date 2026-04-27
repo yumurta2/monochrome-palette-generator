@@ -100,6 +100,22 @@ monochrome-palette-generator/
 
 ## Sürümler
 
+### v1.5.2
+
+**Kazanım:** Light Range artık Light Shift'i etkilemiyor; her iki slider %2 step ile daha ince ayar.
+
+**Neden çıkıldı:**
+- 1.5.0/1.5.1'de Range değiştirildiğinde Shift'in `max`'i dinamik kırpılıyordu (`maxShift = 100 - range`). Yan etki: kullanıcı sadece Range'e dokunuyor sansa da Shift değeri sessizce aşağı kayıyordu — özellikle Range'i 80'den yukarı çekerken. Tek slider'a dokunup iki değerin birden değişmesi kafa karıştırıcı bir UX problemi.
+- Eski step (`%5`) ışık penceresinin başlangıcını ve genişliğini ince ayarlamak için fazla kaba kalıyordu — özellikle dar steps (5–8) ile çalışırken.
+
+**Ne geldi:**
+- **Bağımsız Range/Shift:** [bindInputs.js](src/input/bindInputs.js)'teki auto-clamp kaldırıldı. Range ve Shift artık birbirine müdahale etmez.
+- **Math safety:** Yeni özgürlük `shift + range > 100` durumunu mümkün kıldığı için [generatePalette.js](src/logic/generatePalette.js) çıktıdaki `L` değerlerini `[0, 100]` aralığına `Math.max/Math.min` ile kıstırıyor. Pencere 100'ü aşarsa en üstteki shade'ler saf beyaza (`#ffffff`) sıkışır — sessiz değer kayması yerine görünür sonuç.
+- **Light Range step:** `%5 → %2`.
+- **Light Shift step:** `%5 → %2`, default `%15 → %16` (step=2 ile uyumlu en yakın değer).
+
+**Not:** v1.5.0'da bahsedilen "Shift slider'ının max'i range değişince dinamik güncellenir" davranışı artık yok — bu sürümle kaldırıldı.
+
 ### v1.5.1
 
 **Kazanım:** Açılış değerleri yeniden ayarlandı.

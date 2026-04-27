@@ -3,12 +3,5 @@ export function bindInputs({ hueInput, satInput, stepsInput, rangeInput, shiftIn
   satInput.addEventListener('input', callback)
   stepsInput.addEventListener('input', callback)
   shiftInput.addEventListener('input', callback)
-
-  rangeInput.addEventListener('input', () => {
-    const maxShift = 100 - parseInt(rangeInput.value)
-    if (parseInt(shiftInput.value) > maxShift) {
-      shiftInput.value = String(maxShift)
-    }
-    callback()
-  })
+  rangeInput.addEventListener('input', callback)
 }
