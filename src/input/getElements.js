@@ -13,5 +13,6 @@ export function getElements() {
     colorsContainer: document.getElementById('colors'),
     exportBtn: document.getElementById('export'),
     modeBtn: document.getElementById('mode'),
+    curveInputs: document.querySelectorAll('input[name="curve"]'),
   }
 }

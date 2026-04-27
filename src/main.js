@@ -12,19 +12,21 @@ import { generatePalette, paletteToPng } from './logics.js'
 
 const elements = getElements()
 
+const CURVE_ABBR = { linear: 'lin', parabolic: 'par', bell: 'bel', asymmetric: 'asy' }
+
 const update = () => {
-  const { h, s, steps, range, shift, mode } = readInputs(elements)
+  const { h, s, steps, range, shift, mode, curve } = readInputs(elements)
   updateInputDisplay(elements, h, s, steps, range, shift, mode)
-  const palette = generatePalette(h, s, steps, range, shift, mode)
+  const palette = generatePalette(h, s, steps, range, shift, mode, curve)
   renderPalette(elements.colorsContainer, palette)
 }
 
 const onExport = async () => {
-  const { h, s, steps, range, shift, mode } = readInputs(elements)
-  const palette = generatePalette(h, s, steps, range, shift, mode)
+  const { h, s, steps, range, shift, mode, curve } = readInputs(elements)
+  const palette = generatePalette(h, s, steps, range, shift, mode, curve)
   const hexes = palette.map((p) => p.hex)
   const blob = await paletteToPng(hexes)
-  downloadBlob(blob, `palette-${mode}-h${h}-s${s}-n${steps}-r${range}-o${shift}.png`)
+  downloadBlob(blob, `palette-${mode}-h${h}-s${s}-n${steps}-r${range}-o${shift}-c${CURVE_ABBR[curve]}.png`)
 }
 
 bindInputs(elements, update)

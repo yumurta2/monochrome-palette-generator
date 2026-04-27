@@ -21,7 +21,6 @@ export function updateInputDisplay(elements, h, s, steps, range, shift, mode) {
     stepsValue,
     rangeValue,
     shiftValue,
-    shiftInput,
     satInput,
   } = elements
 
@@ -30,8 +29,6 @@ export function updateInputDisplay(elements, h, s, steps, range, shift, mode) {
   stepsValue.textContent = steps
   rangeValue.textContent = range
   shiftValue.textContent = shift
-
-  shiftInput.max = String(100 - range)
 
   hueInput.style.background = hueGradient(mode)
   satInput.style.background = satGradient(mode, h)

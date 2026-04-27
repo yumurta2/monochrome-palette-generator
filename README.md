@@ -100,6 +100,40 @@ monochrome-palette-generator/
 
 ## Sürümler
 
+### v1.6.0
+
+**Kazanım:** Chroma'yı L'ye göre eğri ile module eden **Chroma Curve** kontrolü. 4 seçenek arasında radio toggle: Linear / Parabolic / Bell (default) / Asymmetric.
+
+**Neden çıkıldı (color theory):**
+
+Önceki sürümlerde chroma her shade için sabitti: `(s/100) * 0.37`. Bu yaklaşımın iki gözle görünür sorunu vardı:
+
+1. **clampChroma at high L:** Yüksek L'de (L > ~0.85) sRGB gamut'u sabit chroma'yı kaldıramaz; culori sessizce kırpar. Sonuç: paletin sondan bir önceki shade'i renkli, son shade ise neredeyse beyaz → ani identity kopması. Kullanıcı şikayet ediyordu: "en sağdaki ile bir öncesi arasındaki fark çok fazla".
+2. **Constant chroma → midtone monotonluğu:** Tüm shade'ler aynı C+H ile geldiğinde, göz baskın renk sinyaline kilitlenip L farkını "aynı şeyin biraz farklı tonu" diye gruplayıp önemsizleştirir → "ortadan sağa renkler çok yakın" hissi.
+
+Material 3, Radix Colors, Tailwind v4 tonal scale'leri **chroma'yı L boyunca değiştirir** — uçlarda chroma düşer, midtone'da tepe yapar. Bu hem clampChroma'nın devre dışı kalmasını sağlar (chroma zaten gamut içinde), hem de her shade'in hafifçe farklı identity kazanmasıyla midtone'lardaki monotonluk kırılır.
+
+**Ne geldi:**
+
+`Chroma Curve` radio grubu — 4 eğri formülü:
+
+| Eğri | Formül `f(L)` | Karakter | Tipik kullanım |
+|---|---|---|---|
+| **Linear** | `1` | Sabit chroma (eski 1.5.x davranışı) | Geri uyumluluk, "flat" UI tonal scale |
+| **Parabolic** | `4·L·(1-L)` | Keskin midtone tepe, hızlı düşüş | Vivid orta tonlar, kontrastlı palette |
+| **Bell** (default) | `sin(π·L)` | Yumuşak omuzlu tepe | Genel amaç — illustration, UI, tasarım sistemleri |
+| **Asymmetric** | `1 - (2L-1)⁴` | Flat-top (L=0.3-0.7 dolu), uçlarda hızlı düşüş | Design system tonal scale (50, 100, ..., 900) |
+
+Effective chroma artık: `(s/100) · 0.37 · f(L)`. Sat slider'ı **PEAK** chroma'yı kontrol eder; uçlarda chroma doğal olarak azalır.
+
+**Default değişikliği:** İlk açılışta `Bell` seçili gelir. v1.5.x'in sabit chroma davranışını geri almak için `Linear` seç. Karşılaştırma yaparken iki eğri arasında geçiş yap — son shade'in clampChroma kopması Bell'de kaybolur, midtone'lar daha "renkli" hissedilir.
+
+**Export filename:** Curve kısaltması eklendi: `palette-{mode}-h{h}-s{s}-n{steps}-r{range}-o{shift}-c{lin|par|bel|asy}.png`.
+
+**Bonus — v1.5.2 drift fix tamamlama:**
+
+v1.5.2'de Range/Shift drift'i `bindInputs.js`'teki value-clamp'ı silerek "düzelttik" sandık ama [updateInputDisplay.js](src/input/updateInputDisplay.js) hâlâ her update'te `shiftInput.max = String(100 - range)` çalıştırıyordu. Bu satır slider'ın max attribute'unu mutate ediyor → browser thumb'ı otomatik kırpıyor → drift hâlâ gözle görünüyordu. Bu sürümle o satır da silindi. Range ve Shift artık **gerçekten** birbirinden bağımsız.
+
 ### v1.5.2
 
 **Kazanım:** Light Range artık Light Shift'i etkilemiyor; her iki slider %2 step ile daha ince ayar.
