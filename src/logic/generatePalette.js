@@ -19,9 +19,11 @@ export function generatePalette(h, s, steps, range, shift, mode, curve = 'bell',
   const toHex = mode === 'oklch' ? oklchToHex : hslToHex
   const curveFn = CURVES[curve] ?? CURVES.bell
   const lightFn = LIGHTNESS_CURVES[lightCurve] ?? LIGHTNESS_CURVES.linear
+  const desiredWindowMin = 50 + shift - range / 2
+  const windowMin = Math.max(0, Math.min(100 - range, desiredWindowMin))
   return Array.from({ length: steps }, (_, i) => {
     const t = steps === 1 ? 0 : i / (steps - 1)
-    const raw = shift + lightFn(t) * range
+    const raw = windowMin + lightFn(t) * range
     const l = Math.max(0, Math.min(100, raw))
     const sEffective = s * curveFn(l / 100)
     const hForShade = (((h + ((l - 50) / 50) * hueShift) % 360) + 360) % 360

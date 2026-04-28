@@ -100,6 +100,50 @@ monochrome-palette-generator/
 
 ## Sürümler
 
+### v1.6.5
+
+**Kazanım:** Light Shift bidirectional (`-50` ↔ `+50`) slider oldu. Semantic değişti — **shift artık window'u kaydırır, range'i değiştirmez**.
+
+**Yeni semantic — sliding window:**
+
+Eski formül `L_min = shift, L_max = shift + range` yerine artık:
+
+```
+desiredWindowMin = 50 + shift - range/2
+windowMin = clamp(desiredWindowMin, 0, 100 - range)
+windowMax = windowMin + range  (her zaman)
+```
+
+Yani **window WIDTH her zaman = range**. Shift sadece window'u [0, 100] L space'i içinde kaydırır. Eğer shift fazla agresifse (örn. range=80 + shift=+30 → desired window 40-120), window slide'ı [0, 100] sınırına yaslanıp DURUR — width korunur, range kompresyonu yoktur.
+
+**Konsekanslar:**
+- `range=80, shift=0`: desired 10-90 → fits → window 10-90
+- `range=80, shift=+10`: desired 20-100 → fits → window 20-100
+- `range=80, shift=+30`: desired 40-120 → slide left → window 20-100 (effective shift = +10)
+- `range=80, shift=-10`: desired 0-80 → fits → window 0-80
+- `range=80, shift=-30`: desired -20 to 60 → slide right → window 0-80
+- **`range=100, shift=any`**: desired window any → [0, 100-100]=[0,0] → windowMin=0, windowMax=100. **Mantıken shift etkisiz** (window L'nin tamamı). Slider kullanıcı için interaktif kalır ama görsel etki yoktur.
+- `range=90, shift=+5`: desired 10-100 → fits → window 10-100
+- `range=90, shift=+10`: desired 15-105 → slide left → window 10-100 (max'e yaslandı)
+
+**Slider disable yok**: User explicitly "disable olmasın" dedi. Slider her zaman free. Range=100 iken effect doğal olarak zero olur (window zaten full L), slider hareket eder ama palette değişmez.
+
+**Backwards-incompatibility uyarısı:**
+
+Aynı `(shift, range)` çiftleri farklı palet üretir. Eski v1.6.4'le eşdeğer için:
+
+| Eski (v1.6.4) | Yeni (v1.6.5) | Window |
+|---|---|---|
+| `shift=16, range=80` | `shift=+6, range=80` | 16-96 |
+| `shift=0, range=80` | `shift=-10, range=80` | 0-80 |
+| `shift=10, range=60` | `shift=-10, range=60` | 10-70 |
+
+Genel formül: `new_shift = old_shift - (100 - old_range) / 2`.
+
+Yeni default `shift=0, range=80` → window 10-90. Centered, balanced.
+
+**Color theory rationale:** Sliding-window semantic monochrome palette generator'larda standarttır (Radix Colors, Material 3 token tooling). Kullanıcının mental model'i daha temiz: "range = window genişliği, shift = window pozisyonu". İki kontrol birbirine etkimez — one-axis-at-a-time editing.
+
 ### v1.6.4
 
 **Kazanım:** İki düzeltme — Light Range slider'ı tam işlevini geri kazandı, Hue Shift radio'dan **slider**'a (negatif değerler dahil) dönüştü.
