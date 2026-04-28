@@ -15,6 +15,7 @@ export function getElements() {
     modeBtn: document.getElementById('mode'),
     curveInputs: document.querySelectorAll('input[name="curve"]'),
     lightCurveInputs: document.querySelectorAll('input[name="lightCurve"]'),
-    hueShiftInputs: document.querySelectorAll('input[name="hueShift"]'),
+    hueShiftInput: document.getElementById('hueShift'),
+    hueShiftValue: document.getElementById('hueShift-value'),
   }
 }

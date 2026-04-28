@@ -59,13 +59,10 @@
         </div>
 
         <div class="slider-group">
-          <label>Hue Shift</label>
-          <div class="curve-group">
-            <label><input type="radio" name="hueShift" value="none" checked /> None</label>
-            <label><input type="radio" name="hueShift" value="subtle" /> Subtle 5°</label>
-            <label><input type="radio" name="hueShift" value="painterly" /> Painterly 15°</label>
-            <label><input type="radio" name="hueShift" value="strong" /> Strong 30°</label>
-          </div>
+          <label>
+            Hue Shift: <span id="hueShift-value">0</span>°
+          </label>
+          <input type="range" id="hueShift" min="-90" max="90" value="0" step="5" />
         </div>
 
         <div class="slider-group">

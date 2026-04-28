@@ -100,6 +100,41 @@ monochrome-palette-generator/
 
 ## Sürümler
 
+### v1.6.4
+
+**Kazanım:** İki düzeltme — Light Range slider'ı tam işlevini geri kazandı, Hue Shift radio'dan **slider**'a (negatif değerler dahil) dönüştü.
+
+**1. Light Range fix — LIGHTNESS_CURVES'ten offset kaldırıldı**
+
+v1.6.2'de Lightness Curve eklenirken non-Linear eğrilerde offset vardı:
+- `easeOut`: `f(0)=0.1, f(1)=1` (effective range = 0.9 * range)
+- `easeIn`: `f(0)=0, f(1)=0.9`
+- `smooth`: `f(0)=0.05, f(1)=0.95`
+
+Bu offset'ler Light Range slider'ının semantiğini bozuyordu: kullanıcı 80→100 yapsa bile efektif L window aralığı `0.9 * delta` kadar kaymış oluyordu — slider "tam çalışmıyormuş" gibi hissediliyordu.
+
+Yeni formüller her eğride `f(0)=0, f(1)=1` garantisi:
+- **Linear**: `t`
+- **Ease-Out**: `1 - (1-t)^1.7` — leftmost shift'te kalır, sonraki shade'ler hızla yukarı sıçrar (gamut cliff'i atlatma stratejisi: tek "deep" shade + 7 görünür shade)
+- **Ease-In**: `t^1.7` — rightmost'a kadar yavaş, sona doğru hızlı yükseliş
+- **Smooth**: `0.5 - 0.5·cos(πt)` — S-curve, midtone'da yoğun
+
+Trade-off değişti: Lightness Curve artık **window'u sıkıştırmaz**, sadece *dağılım şeklini* değiştirir. Light Range tam etkili. Gamut cliff'i otomatik atlatma kaybedildi — kullanıcı manuel olarak `Light Shift`'i yükseltir veya Ease-Out kabul eder (shade 0 deep ama mtoplam palet vivid).
+
+**2. Hue Shift: radio → slider**
+
+Eski 4-opsiyon radio (None/Subtle 5°/Painterly 15°/Strong 30°) yerine **−90° ↔ +90°** aralıklı slider, step 5°. Negatif değerler de mümkün:
+
+- `+30°`: lights base'den +30°, darks base−30° (lights "ileri" hue, darks "geri")
+- `0°`: pure monochrome (eski None davranışı)
+- `−30°`: ters yön — lights "geri" hue, darks "ileri" (örn. h=180 cyan ile darks daha mavimsi, lights yeşilimsi)
+
+Formül aynı: `h_shade = h + ((L - 50) / 50) * hueShift`. Sadece artık `hueShift` direkt int değer (radio kategorisi değil).
+
+**Color theory rationale:** Painterly hue shift sadece tek yöne sınırlı değil. Klasik resimde "warm shadows + cool highlights" ve "cool shadows + warm highlights" iki valid yaklaşım — direction sanatçının niyetine göre değişir. Slider iki yönü de erişilebilir kılar.
+
+**Export filename:** Hue shift artık direkt tamsayı değer: `palette-...-x{hueShift}.png`. Pozitifler `-x15`, negatifler `-x-15` görünür.
+
 ### v1.6.3
 
 **Kazanım:** UI 2 satır × 4 sütun olarak yeniden organize edildi, **Hue Shift** kontrolü eklendi, "Saturation" etiketi **Chroma** olarak yeniden adlandırıldı.

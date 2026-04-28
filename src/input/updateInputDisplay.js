@@ -13,7 +13,7 @@ function satGradient(mode, h) {
     : `linear-gradient(to right, hsl(${h}, 0%, 50%), hsl(${h}, 100%, 50%))`
 }
 
-export function updateInputDisplay(elements, h, s, steps, range, shift, mode) {
+export function updateInputDisplay(elements, h, s, steps, range, shift, mode, hueShift) {
   const {
     hueInput,
     hueValue,
@@ -21,6 +21,7 @@ export function updateInputDisplay(elements, h, s, steps, range, shift, mode) {
     stepsValue,
     rangeValue,
     shiftValue,
+    hueShiftValue,
     satInput,
   } = elements
 
@@ -29,6 +30,7 @@ export function updateInputDisplay(elements, h, s, steps, range, shift, mode) {
   stepsValue.textContent = steps
   rangeValue.textContent = range
   shiftValue.textContent = shift
+  hueShiftValue.textContent = hueShift
 
   hueInput.style.background = hueGradient(mode)
   satInput.style.background = satGradient(mode, h)
