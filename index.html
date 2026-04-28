@@ -25,30 +25,47 @@
 
         <div class="slider-group">
           <label>
-            Saturation: <span id="sat-value">30</span>%
+            Chroma: <span id="sat-value">30</span>%
           </label>
           <input type="range" id="saturation" min="0" max="100" value="30" step="5" />
         </div>
 
-        <div class="slider-group">
-          <label>
-            Light Steps: <span id="steps-value">8</span>
-          </label>
-          <input type="range" id="steps" min="2" max="51" value="8" step="1" />
+        <div class="light-sliders">
+          <div class="slider-group">
+            <label>
+              Light Steps: <span id="steps-value">8</span>
+            </label>
+            <input type="range" id="steps" min="2" max="51" value="8" step="1" />
+          </div>
+
+          <div class="slider-group">
+            <label>
+              Light Range: <span id="range-value">80</span>%
+            </label>
+            <input type="range" id="range" min="0" max="100" value="80" step="2" />
+          </div>
+
+          <div class="slider-group">
+            <label>
+              Light Shift: <span id="shift-value">16</span>%
+            </label>
+            <input type="range" id="shift" min="0" max="20" value="16" step="2" />
+          </div>
         </div>
 
         <div class="slider-group">
-          <label>
-            Light Range: <span id="range-value">80</span>%
-          </label>
-          <input type="range" id="range" min="0" max="100" value="80" step="2" />
+          <label>Color Space</label>
+          <button id="mode" class="btn" data-mode="oklch">OKLCH</button>
         </div>
 
         <div class="slider-group">
-          <label>
-            Light Shift: <span id="shift-value">16</span>%
-          </label>
-          <input type="range" id="shift" min="0" max="20" value="16" step="2" />
+          <label>Hue Shift</label>
+          <div class="curve-group">
+            <label><input type="radio" name="hueShift" value="none" checked /> None</label>
+            <label><input type="radio" name="hueShift" value="subtle" /> Subtle 5°</label>
+            <label><input type="radio" name="hueShift" value="painterly" /> Painterly 15°</label>
+            <label><input type="radio" name="hueShift" value="strong" /> Strong 30°</label>
+          </div>
         </div>
 
         <div class="slider-group">
@@ -61,7 +78,7 @@
           </div>
         </div>
 
-        <div class="slider-group">
+        <div class="slider-group light-curve-cell">
           <label>Lightness Curve</label>
           <div class="curve-group">
             <label><input type="radio" name="lightCurve" value="linear" checked /> Linear</label>
@@ -69,11 +86,6 @@
             <label><input type="radio" name="lightCurve" value="easeIn" /> Ease-In</label>
             <label><input type="radio" name="lightCurve" value="smooth" /> Smooth</label>
           </div>
-        </div>
-
-        <div class="slider-group">
-          <label>Color Space</label>
-          <button id="mode" class="btn" data-mode="oklch">OKLCH</button>
         </div>
 
         <div class="slider-group">

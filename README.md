@@ -100,6 +100,48 @@ monochrome-palette-generator/
 
 ## Sürümler
 
+### v1.6.3
+
+**Kazanım:** UI 2 satır × 4 sütun olarak yeniden organize edildi, **Hue Shift** kontrolü eklendi, "Saturation" etiketi **Chroma** olarak yeniden adlandırıldı.
+
+**UI yapısı (4×2 grid):**
+
+| Sütun | Row 1 (slider) | Row 2 (radio) |
+|---|---|---|
+| 1 — Hue | Hue slider | Hue Shift (None / Subtle 5° / Painterly 15° / Strong 30°) |
+| 2 — Chroma | Chroma slider (eski Saturation) | Chroma Curve |
+| 3 — Light | Light Steps + Range + Shift (yatay 3 sub-slider) | Lightness Curve |
+| 4 — Action | Color Space (OKLCH/HSL toggle) | Export PNG |
+
+**Ne geldi:**
+
+1. **Etiket: Saturation → Chroma.** OKLCH bağlamında "chroma" doğru terim; HSL'de de slider geriye uyumlu çalışır (saturation'ı kontrol eder, sadece etiket farklı).
+
+2. **Hue Shift kontrolü.** Color theory'de "painterly hue shift" olarak bilinen pigment davranışını taklit eder: shade'in L değerine göre hue'su hafifçe rotated olur. Pure monochrome'dan ayrılır ama derinlik kazanır.
+
+   Formül: `h_shade = h + ((l - 50) / 50) * hueOffset`
+   - L=50 (midtone): hue tam olarak base hue
+   - L=0 (en koyu): hue base − offset° (örn. base=180, strong=30 → koyularda h=150)
+   - L=100 (en açık): hue base + offset° (örn. h=210)
+
+   | Mod | Offset | Karakter |
+   |---|---:|---|
+   | **None** (default) | 0° | Pure monochrome — eski davranış |
+   | **Subtle** | ±5° | Belli belirsiz drift, gözle zar zor fark eder |
+   | **Painterly** | ±15° | Klasik resim hue shift'i — koyularda warm, açıklarda cool veya tersi |
+   | **Strong** | ±30° | Belirgin renk yelpazesi, "monochrome" sınırını zorlar |
+
+   Direction: lights = base + offset (yani lights base hue'dan saat yönünde). h=180 (cyan) için Strong → koyular yeşilimsi (h=150), açıklar mavimsi (h=210). Ters yön istersen base hue'yu kaydır.
+
+   **Color theory rationale:** Real pigments (Abney effect, dispersion) hue'yu lightness ile değiştirir. Sahip olduğun pigment miktarına göre warm shadows / cool highlights veya tersi sıkça görülen palet karakteristikleri. Pure monochrome (None) sıklıkla "yapay" hissedilir; küçük bir hue shift palet'i daha doğal yapar.
+
+3. **UI restructure (2 satır):**
+   - Üst satır: aktif değerleri ayarladığın sliderlar (hue, chroma, 3 light, mode toggle)
+   - Alt satır: davranış modifier'ları (curve seçimleri, hue shift, export)
+   - Sol→sağ gruplama mantığı: Hue → Chroma → Light → Action. Hue shift Hue sütununda, Chroma Curve Chroma sütununda, Lightness Curve Light sütununda — radio kontrolleri doğal olarak ait oldukları slider'ın altında.
+
+**Export filename:** Hue shift derecesi eklendi: `palette-{mode}-h{h}-s{s}-n{steps}-r{range}-o{shift}-c{cc}-l{lc}-x{hs_deg}.png`. Hue shift kısaltmaları: `0`, `5`, `15`, `30`.
+
 ### v1.6.2
 
 **Kazanım:** Yeni **Lightness Curve** kontrolü — L değerlerinin slider window içinde **nasıl dağıtılacağını** kontrol eder. 4 opsiyon: Linear (default), Ease-Out, Ease-In, Smooth. Düşük `Light Shift` ile gamut clip zone'una basmamak için soft floor sağlar.

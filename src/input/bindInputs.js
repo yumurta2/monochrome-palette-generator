@@ -1,4 +1,4 @@
-export function bindInputs({ hueInput, satInput, stepsInput, rangeInput, shiftInput, curveInputs, lightCurveInputs }, callback) {
+export function bindInputs({ hueInput, satInput, stepsInput, rangeInput, shiftInput, curveInputs, lightCurveInputs, hueShiftInputs }, callback) {
   hueInput.addEventListener('input', callback)
   satInput.addEventListener('input', callback)
   stepsInput.addEventListener('input', callback)
@@ -6,4 +6,5 @@ export function bindInputs({ hueInput, satInput, stepsInput, rangeInput, shiftIn
   rangeInput.addEventListener('input', callback)
   curveInputs.forEach((input) => input.addEventListener('change', callback))
   lightCurveInputs.forEach((input) => input.addEventListener('change', callback))
+  hueShiftInputs.forEach((input) => input.addEventListener('change', callback))
 }
