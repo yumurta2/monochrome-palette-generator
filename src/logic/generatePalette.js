@@ -3,9 +3,9 @@ import { oklchToHex } from './oklchToHex.js'
 
 const CURVES = {
   linear: () => 1,
-  parabolic: (l) => 4 * l * (1 - l),
-  bell: (l) => Math.sin(Math.PI * l),
-  asymmetric: (l) => 1 - Math.pow(2 * l - 1, 4),
+  parabolic: (l) => l <= 0.5 ? 1 : 1 - 4 * Math.pow(l - 0.5, 2),
+  bell: (l) => l <= 0.5 ? 1 : Math.sin(Math.PI * l),
+  asymmetric: (l) => l <= 0.5 ? 1 : 1 - 16 * Math.pow(l - 0.5, 4),
 }
 
 export function generatePalette(h, s, steps, range, shift, mode, curve = 'bell') {

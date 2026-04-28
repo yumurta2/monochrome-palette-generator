@@ -100,6 +100,40 @@ monochrome-palette-generator/
 
 ## Sürümler
 
+### v1.6.1
+
+**Kazanım:** Tüm non-Linear chroma eğrileri **shadow-rich** varyantlara dönüştürüldü. Koyu shade'ler artık tüm eğrilerde full chroma kalır; chroma fade'i sadece highlight tarafında olur.
+
+**Neden çıkıldı:**
+
+v1.6.0'daki üç symmetric eğri (Parabolic, Bell, Asymmetric) hepsi L=0 ve L=1'de chroma'yı 0'a çekiyordu. Pratik sonuç: koyu shade'ler hue identity'sini kaybedip "near-black" görünüyordu. Örnek: default `h=180, sat=30, shift=14` paletinde Bell ile en koyu shade `#000C09` — sayfa background'ıyla erimiş, teal değil "siyaha yakın koyuluk".
+
+**Color theory rationale**: Real pigments shadow'larda chroma'yı **korur**, sadece highlights'ta beyaza doğru fade olur. Ressam mantığı (ultramarine, viridian, alizarin gibi koyu pigmentler shadow'da hue kimliğini kaybetmez), illustrasyon palet geleneği, Material 3 / Radix tonal scale'leri hep bu prensibe dayanır — **shadow plateau + highlight fade**. v1.6.0'ın symmetric set'i bu mantığa terstir.
+
+**Ne geldi (yeni curve set):**
+
+Tüm non-Linear eğriler aynı **plateau-then-fade** yapısına geçti: L ≤ 0.5'te faktör = 1 (full chroma), L > 0.5'te farklı hızlarla fade.
+
+| Eğri | Formül (L > 0.5) | Fade karakteri |
+|---|---|---|
+| **Linear** | `1` (sabit) | Yok — full chroma her yerde, high-L'de gamut clip riski |
+| **Bell** (default) | `sin(π·L)` | Hızlı, smooth s-curve fade — en pastel highlights |
+| **Parabolic** | `1 - 4·(L-0.5)²` | Orta hızda quadratic fade — dengeli |
+| **Asymmetric** | `1 - 16·(L-0.5)⁴` | Quartic plateau — highlights uzun süre dolu, sona doğru ani drop |
+
+L > 0.5 aralığında tüm L noktalarında sıralama: **Asymmetric > Parabolic > Bell**. Yani aynı slider değerleriyle:
+- **Bell** → en pastel/yumuşak highlights
+- **Parabolic** → orta düzey
+- **Asymmetric** → highlights vivid kalır, son 2-3 shade'de hızla beyaza iner
+
+L ≤ 0.5 plateau bölgesinde üç eğri de identik — koyu yarı garanti dolu.
+
+**Backwards-incompatibility uyarısı:**
+
+Aynı slider değerleri v1.6.0 ile farklı palet üretir. **Linear** değişmedi. v1.6.0'ın "her iki uçta solar" davranışı geri istenirse o sürüme dön — v1.6.1'de symmetric bell yok artık. Kullanım pratiği: bu set "pigment-realistic" yaklaşımı default yapar; UI tonal scale, illustration shading, design system primary ramp gibi senaryolarda doğrudan kullanılabilir.
+
+**Default değişmedi:** `Bell` hâlâ ilk açılışta seçili; ama artık koyu yarısı korunmuş bir Bell.
+
 ### v1.6.0
 
 **Kazanım:** Chroma'yı L'ye göre eğri ile module eden **Chroma Curve** kontrolü. 4 seçenek arasında radio toggle: Linear / Parabolic / Bell (default) / Asymmetric.
