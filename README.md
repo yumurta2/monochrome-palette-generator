@@ -100,6 +100,45 @@ monochrome-palette-generator/
 
 ## Sürümler
 
+### v1.6.2
+
+**Kazanım:** Yeni **Lightness Curve** kontrolü — L değerlerinin slider window içinde **nasıl dağıtılacağını** kontrol eder. 4 opsiyon: Linear (default), Ease-Out, Ease-In, Smooth. Düşük `Light Shift` ile gamut clip zone'una basmamak için soft floor sağlar.
+
+**Neden çıkıldı (color theory):**
+
+OKLCH gamut'u her hue için farklı L'lerde "iflas eder" — özellikle düşük L'de gamut çok dar olur. Cyan (h=180) için L < ~18 zonda culori `clampChroma` chroma'yı sessizce sıfıra yakın kırpar. Sonuç: kullanıcı `Light Shift = 12` koyarsa ilk shade `oklch(12% 0.111 180)` istense de gerçekte `~oklch(12% 0.03 180)` döner — neredeyse saf siyah.
+
+Hue'ya göre gamut limiti **sabit değil** (mavi h=240 için L=10 hâlâ vivid; sarı h=90 için L=30 bile dar). Yani "shift'i ≥ 20 yap" gibi sabit öneri her hue için doğru değil. Çözüm: kullanıcı istediği shift'i seçsin, ama L distribution'ı içeride **easing curve** ile gamut cliff'inden uzaklaşsın — leftmost shade `shift`'in birkaç birim üstüne kaymış olur.
+
+**Ne geldi (4 lightness curve):**
+
+`L_i = shift + lightCurve(i / (steps-1)) * range` formülü — `lightCurve` fonksiyonu `t ∈ [0,1]`'i farklı dağılımlara mapler:
+
+| Eğri | Formül | f(0) | f(1) | Karakter |
+|---|---|---:|---:|---|
+| **Linear** (default) | `t` | 0 | 1 | Mevcut davranış: leftmost = shift, rightmost = shift+range |
+| **Ease-Out** | `0.1 + 0.9·(1 - (1-t)^1.5)` | 0.1 | 1 | Leftmost shift+%10 lift olur — koyu uçtaki gamut cliff atlanır |
+| **Ease-In** | `0.9·t^1.5` | 0 | 0.9 | Rightmost shift+range'in %90'ında durur — açık uçta highlight clip'inden uzak |
+| **Smooth** | `0.05 + 0.9·(0.5 - 0.5·cos(πt))` | 0.05 | 0.95 | İki ucu da hafif sıkıştırır, midtone'da expanded — S-curve |
+
+**Senin paletinle (shift=12, range=80, steps=16, h=180) somut sonuç:**
+
+| Eğri | L_min | L_max | İlk shade gamut'ta? |
+|---|---:|---:|---|
+| **Linear** | 12 | 92 | Hayır — clip'lenir, neredeyse siyah |
+| **Ease-Out** | **20** | 92 | Evet — gamut cliff atlandı, dark teal kalır |
+| **Ease-In** | 12 | 84 | Hayır (leftmost'ta) — bu kullanım için uygun değil |
+| **Smooth** | 16 | 88 | Marjinal — biraz daha iyi |
+
+**Trade-off:** Non-Linear lightness curve, "shift = leftmost L" semantiğini bozar. Slider `shift=12` der ama Ease-Out'ta leftmost L=20'de doğar. Bu **opt-in** bir trade — kullanıcı bilerek seçer. Linear default sayesinde varolan davranış bozulmaz.
+
+**Kullanım önerisi:**
+- Default Bell + Linear → mevcut davranış, gamut clip riski var düşük shift'lerde
+- **Bell + Ease-Out** → düşük shift kullanıyorsan otomatik gamut-safe
+- Asymmetric + Smooth → design system tonal scale (50, 100, ..., 950 gibi) için ideal
+
+**Export filename:** Lightness curve abbr eklendi: `palette-{mode}-h{h}-s{s}-n{steps}-r{range}-o{shift}-c{chroma}-l{light}.png`. Kısaltmalar: `lin`, `eo`, `ei`, `sm`.
+
 ### v1.6.1
 
 **Kazanım:** Tüm non-Linear chroma eğrileri **shadow-rich** varyantlara dönüştürüldü. Koyu shade'ler artık tüm eğrilerde full chroma kalır; chroma fade'i sadece highlight tarafında olur.

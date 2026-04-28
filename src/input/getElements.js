@@ -14,5 +14,6 @@ export function getElements() {
     exportBtn: document.getElementById('export'),
     modeBtn: document.getElementById('mode'),
     curveInputs: document.querySelectorAll('input[name="curve"]'),
+    lightCurveInputs: document.querySelectorAll('input[name="lightCurve"]'),
   }
 }

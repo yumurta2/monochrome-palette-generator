@@ -1,5 +1,6 @@
 export function readInputs({ hueInput, satInput, stepsInput, rangeInput, shiftInput, modeBtn }) {
   const checkedCurve = document.querySelector('input[name="curve"]:checked')
+  const checkedLightCurve = document.querySelector('input[name="lightCurve"]:checked')
   return {
     h: parseInt(hueInput.value),
     s: parseInt(satInput.value),
@@ -8,5 +9,6 @@ export function readInputs({ hueInput, satInput, stepsInput, rangeInput, shiftIn
     shift: parseInt(shiftInput.value),
     mode: modeBtn.dataset.mode,
     curve: checkedCurve?.value ?? 'bell',
+    lightCurve: checkedLightCurve?.value ?? 'linear',
   }
 }
